@@ -1,179 +1,88 @@
+# Project Overview
+
+This repository includes the following components:
+- **React Application**: A simple React application demonstrating basic React setup.
+- **Configuration Files**: Various configuration files for Git and GitHub.
+- Aim: How to host your website on ec2 instance 
+
 STEP 1
 SETUP SECURITY GROUPS
-
-
-
-
-
 Ensure you have signed up to and logged into AWS. 
 
-
-
 When at AWS, in the search bar, type EC2 and select that. You can then navigate on the left hand pane to the security groups.
-
-
-
 You will want the following security groups:
-
-
-
-URL image
-
-
-
 
 Select Create Security Group on the top right hand corner of the screen.
 
-
-
 No we need to create two security groups. One which allows you to access a machine terminal (the machine will be something you set up shortly) and the other will allow your machine to be fully accessed by the internet.
 
-
-
 FIRST SECURITY GROUP - SSH ACCESS
-
-
 Security group name = allow-ssh-sg
 
 (although you can call this whatever you like)
-
-
-
 Security group description = Allow full SSH access for developers
-
-
-
 Under INBOUND RULES, add the following rule:
 
 URL image
-
-
-
 
 Then go ahead and create the next group as follows:
 
 SECOND SECURITY GROUP - PUBLIC INTERNET ACCESS
 
-
-
-
 Security group name = allow-public-internet-access-sg
 
 (although you can call this whatever you like)
 
-
-
 Security group description = Allow inbound internet access
-
-
 
 Under INBOUND RULES, add the following rules:
 
-URL image
-
-
 Take note of the port ranges selected by default. Users will essentially be able to either see a website hosted on port 80 or port 443. Later on we will use port 80 and integrate a load balance to take care of this. We will also use NGINX to use port 80 and forward any requests to port 3000 (which is the port our app will be hosted on). Although you can host your app on any port you like.
-
-
-
-
-
-
 
 STEP 2
 SETUP EC2 INSTANCE
-
-
-
-
-
 Navigate back to your EC2 instance dashboard.
 
 
 
 Select Launch Instance.
 
-
-
 Instance Name: My Website Instance (or name this whatever you like)
-
-
 
 Instance Type: Ubuntu
 
-
-
 Amazon Machine Image: Ubuntu 22.04 LTS (HVM), SSD Volume Type
 
-
-
 Architecture: x86 (or use ARM if you develop on ARM, such as on an m1 mac and want to be consistent with your chip architecture)
-
-
 
 Instance Type: t2.medium
 
 Choose whatever instance type you think you might need. If your app is heavy going and requires a lot of memory, choose a different type. Recommendation is to start small and scale this up if you need to. It's very easy to change again later on.
 
-
-
 Keypair Pair (Login): Create a keypair or continue without one which is not recommended by AWS. We wont be using one here so not too important, but you might want to access your machine from your own local computer another time, in which case, you will need one.
-
 
 
 Network Settings: Select an existing security group
 
-Add both security groups you created earlier here.
-
-
+Add both security groups you created earlier here
 
 The click Launch Instance.
 
-
-
 Give your machine about 5 minutes to get itself set up.
-
-
-
-
-
-
 
 STEP 3
 ACCESS YOUR EC2 MACHINE INSTANCE
 
-
-
-
-
 In the EC2 instances dashboard, select your instance and then Actions > Connect
-
-
-
-URL image
-
 
 Then in the next window, select Connect once again.
 
-
-
 Great, you are now connected to your hosted EC2 machine.
-
-
 
 Process with the installation process. Note, this step is only working because you allowed your machine to be accessed via SSH in the security group added to it earlier. If this step did not work for you, go back and ensure you have attached your SSH security group to your EC2 instance.
 
-
-
-
-
-
-
 STEP 4
 PREPARE YOUR MACHINE INSTANCE
-
-
-
 
 
 Update your Ubuntu machine:
@@ -193,28 +102,17 @@ sudo npm cache clean -f
 sudo npm install -g n
 sudo n stable
 
-
 Install Docker (only if you are using Docker for NGINX or for your app):
 
 sudo snap install docker
-
 
 Check Docker installed:
 
 sudo docker version
 
-
-
-
-
-
 STEP 5
 BUILD YOUR APPLICATION
  
-
-
-
-
 Clone your git repo and call it frontend (or whatever name you like).
 
 git clone https://github.com/your-git-account/you-git-url.git frontend
@@ -235,17 +133,12 @@ Add a .env file if your app uses environment variables. Then go into the file an
 $(~/ubuntu/frontend)
 
 touch .env
-sudo nano .env
-
-
+sudo nano 
 Build your application. If you used yarn, then use yarn --exact, if you used npm, then run npm ci. In this case, I will run npm ci.
 
 $(~/ubuntu/frontend)
 
 npm ci
-
-
-
 
 Test your application
 
@@ -260,21 +153,11 @@ You might not use the above command to test your application. You might use yarn
 
 We have not opened up port 3000 (which is what this particular application runs on, yours might be different). Therefore, if you start your application and then visit it from your public ip address displayed on the EC2 instance dashboard, it should just hang. But don't worry, we will fix that with NGINX shortly.
 
-
-
 Rinse and repeat this step for any backends or other web servers on other ports which you wish to add. You would then have a separate folder for each application which you can access from your root.
-
-
-
-
-
-
 
 STEP 6
 ADD NGINX
  
-
-
 
 
 Change directory into your root folder again
@@ -300,11 +183,6 @@ sudo nano nginx.conf
 
 
 Modify the ip address and port to match that of your EC2 machine and application respectively. For example, if your application runs on port 5173, then change 3000 to 5173 and the same with the ip address before the colon.
-
-
-
-URL image
-
 
 
 
